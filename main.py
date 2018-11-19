@@ -27,3 +27,9 @@ if __name__== "__main__":
             #break
 
 
+img = cv2.imread(input_path)
+test = Extract_text_from_image(img,input_path)
+test.preprocess()
+test.dilate_image()
+test.findarrowsRegion()
+test.findTextRegion()
