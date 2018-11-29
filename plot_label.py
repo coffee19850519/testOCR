@@ -18,10 +18,10 @@ def uniform_labels(file_path):
   for file in os.listdir(file_path):
     _, file_name = os.path.split(file)
     file_name, file_ext = os.path.splitext(file_name)
-    if file_ext is  '.txt':
+    if file_ext == '':
       new_labels = []
       # img_fp = open(file_fold+file_name+file_ext,'r')
-      label_fp = open(os.path.join(file_path, 'object_' + file_name), 'rw')
+      label_fp = open(os.path.join(file_path, file_name + file_ext), 'r+')
       label_fp.seek(0)
       for line in label_fp.readlines():
         shape, coord = line.split('\t')
@@ -30,33 +30,37 @@ def uniform_labels(file_path):
           coords = list(map(int, coord.split(',')))
           new_labels.append('circle '+str(coords[0]-coords[2])+','+str(coords[
                                                                1]-coords[
-            2])+','+str(coords[0]+coords[2])+','+str(coords[1]+coords[2]))
+            2])+','+str(coords[0]+coords[2])+','+str(coords[1]+coords[2])+'\n')
+        else:
+          new_labels.append(line)
       label_fp.seek(0)
       label_fp.writelines(new_labels)
       label_fp.close()
       del new_labels
 
+def draw_objects_outline(file_fold):
+  for img, labels, result_file_name in image_label_generator(file_fold):
+    for label_txt in labels:
+      shape, coord = label_txt.split('\t')
+      # capture its coordinate points
+      coords = list(map(int, coord.split(',')))
+      if shape != 'circle':
+        # draw rectangle
+        cv2.rectangle(img, (coords[0], coords[1]), (coords[2], coords[3]), (0,
+                                                                            255,
+                                                                            0),
+                      2)
+      else:
+        # draw circle
+        cv2.circle(img, (coords[0], coords[1]), coords[2], (0,
+                                                            255,
+                                                            0), 2)
+      del shape, coord
+    # save marked result
+    cv2.imwrite(result_file_name, img)
+    # release memory
+    del img, label_txt, result_file_name
+
 
 if __name__== "__main__":
-    for img,labels,result_file_name in image_label_generator(
-        r'C:\Users\coffe\Desktop\training_data'):
-      for label_txt in labels:
-        shape, coord = label_txt.split('\t')
-        # capture its coordinate points
-        coords = list(map(int, coord.split(',')))
-        if shape != 'circle':
-          #draw rectangle
-          cv2.rectangle(img,(coords[0],coords[1]),(coords[2],coords[3]),(0,
-                                                                         255,
-                                                                         0),2)
-        else:
-          #draw circle
-          cv2.circle(img,(coords[0],coords[1]),coords[2],(0,
-                                                                         255,
-                                                                         0),2)
-
-        del shape,coord
-      #save marked result
-      cv2.imwrite(result_file_name,img)
-      #release memory
-      del img,label_txt,result_file_name
+    uniform_labels(r'C:\Users\LSC-110\Desktop\training_data')
