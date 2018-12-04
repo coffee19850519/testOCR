@@ -3,17 +3,17 @@ import cv2,os
 #import numpy as np
 
 def image_label_generator(file_path):
-    for file in os.listdir(file_path):
+    for file in os.listdir(file_path+"/images/"):
       _,file_name = os.path.split(file)
-      if "marked" not in file_name:
-          file_name,file_ext = os.path.splitext(file_name)
-          if file_ext in ['.jpg','.jepg','.tiff','.png']:
-            #img_fp = open(file_fold+file_name+file_ext,'r')
-            label_fp = open(os.path.join(file_path,'object_'+file_name),'r')
-            label_fp.seek(0)
-            yield cv2.imread(os.path.join(file_path, file_name+file_ext)),label_fp.readlines(), \
-                  os.path.join(file_path,'marked_'+file_name+file_ext)
-            label_fp.close()
+      #if "marked" not in file_name:
+      file_name,file_ext = os.path.splitext(file_name)
+      if file_ext in ['.jpg','.jepg','.tiff','.png']:
+        #img_fp = open(file_fold+file_name+file_ext,'r')
+        label_fp = open(os.path.join(file_path+"/labels/",file_name),'r')
+        label_fp.seek(0)
+        yield cv2.imread(os.path.join(file_path+"/images/", file_name+file_ext)),label_fp.readlines(), \
+              os.path.join(file_path+'/masked_by_label/',file_name+file_ext)
+        label_fp.close()
 
 
 if __name__== "__main__":
